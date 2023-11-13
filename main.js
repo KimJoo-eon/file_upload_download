@@ -19,8 +19,7 @@ const storage = multer.diskStorage({
 
         const newFileName = `${currentDate}_${originalName}`;
 
-        // 파일 이름을 Latin-1에서 UTF-8로 변환
-        file.originalname = Buffer.from(newFileName, 'utf8').toString('latin1');
+        file.originalname = newFileName;
 
         cb(null, file.originalname);
     },
