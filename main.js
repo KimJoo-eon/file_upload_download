@@ -7,14 +7,21 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.static('uploads'));
+//
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-        // 클라이언트에서 전달한 파일 이름 사용
-        file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8')
+        const currentDate = new Date().toISOString().slice(0, 10);
+        const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+
+        const newFileName = `${currentDate}_${originalName}`;
+
+        // 파일 이름을 Latin-1에서 UTF-8로 변환
+        file.originalname = Buffer.from(newFileName, 'utf8').toString('latin1');
+
         cb(null, file.originalname);
     },
 });
@@ -26,7 +33,8 @@ app.get('/', (req, res) => {
 });
 
 app.post('/upload', upload.single('file'), (req, res) => {
-    const uploadedFileName = req.file.originalname; // 사용자가 전달한 파일 이름 사용
+    // 업로드된 파일의 새로운 이름을 가져오기
+    const uploadedFileName = req.file.originalname;
     res.send({ filename: uploadedFileName });
 });
 

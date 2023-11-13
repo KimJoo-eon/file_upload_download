@@ -40,12 +40,17 @@
                 const result = await response.json();
 
                 // 파일 다운로드를 위한 링크를 추가
-                const downloadLink = document.createElement('li');
-                downloadLink.innerHTML = `<a href="download/${result.filename}" download>Download ${result.filename}</a>`;
-                downloadLinksContainer.appendChild(downloadLink);
-            } catch (error) {
-                console.error('Error uploading file:', error);
-            }
+                 const isLinkExist = Array.from(downloadLinksContainer.querySelectorAll('li a'))
+            .some(link => link.textContent.includes(result.filename));
+
+        if (!isLinkExist) {
+            const downloadLink = document.createElement('li');
+            downloadLink.innerHTML = `<a href="download/${result.filename}" download>Download ${result.filename}</a>`;
+            downloadLinksContainer.appendChild(downloadLink);
+        }
+    } catch (error) {
+        console.error('Error uploading file:', error);
+    }
         });
 
         // 페이지 로딩 시 서버에 저장된 파일 목록을 가져와 링크 생성
