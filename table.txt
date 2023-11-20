@@ -1,0 +1,11 @@
+create table login_user (id int(12) not null auto_increment primary key
+,username varchar(255) not null, password varchar(255) not null)charset=utf8;
+
+CREATE TABLE `sessions` (
+  `session_id` varchar(255) NOT NULL,
+  `expires` int(11) unsigned NOT NULL,
+  `data` text,
+  PRIMARY KEY (`session_id`)
+);
+
+권한수정

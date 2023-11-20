@@ -1,0 +1,95 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload and Download</title>
+</head>
+<body>
+    <h1>File Upload and Download</h1>
+
+    <!-- 파일 업로드 폼 -->
+    <form id="uploadForm" action="/index/upload" method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
+        <label for="file">Choose a file:</label>
+        <input type="file" name="file" id="file">
+        <button type="submit">Upload</button>
+    </form>
+
+
+    <!-- <a href="/auth/logout">로그아웃</a> -->
+    <button onclick="logout()" id="logoutButton">로그아웃</button>
+
+    <!-- 파일 다운로드 링크 -->
+    <h2>Download Files</h2>
+    <ul id="downloadLinks"></ul>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const downloadLinksContainer = document.getElementById('downloadLinks');
+
+        uploadForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(uploadForm);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                // 파일 다운로드를 위한 링크를 추가
+                 const isLinkExist = Array.from(downloadLinksContainer.querySelectorAll('li a'))
+            .some(link => link.textContent.includes(result.filename));
+
+        if (!isLinkExist) {
+            const downloadLink = document.createElement('li');
+            downloadLink.innerHTML = `<a href="download/${result.filename}" download>Download ${result.filename}</a>`;
+            downloadLinksContainer.appendChild(downloadLink);
+        }
+    } catch (error) {
+        console.error('Error uploading file:', error);
+    }
+        });
+
+        // 페이지 로딩 시 서버에 저장된 파일 목록을 가져와 링크 생성
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/filelist');
+                const fileList = await response.json();
+
+                fileList.forEach((filename) => {
+                    // 파일 다운로드를 위한 링크를 추가
+                    const downloadLink = document.createElement('li');
+                    downloadLink.innerHTML = `<a href="download/${filename}" download>Download ${filename}</a>`;
+                    downloadLinksContainer.appendChild(downloadLink);
+                });
+            } catch (error) {
+                console.error('Error fetching file list:', error);
+            }
+        });
+
+
+        function logout() {
+            // 서버에 로그아웃 요청 보내기
+            fetch('/auth/logout', { method: 'GET' })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    location.reload();
+                    // 로그아웃 성공 시 어떤 동작을 수행할 수 있습니다.
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
